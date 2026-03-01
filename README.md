@@ -5,7 +5,7 @@ Cloudflare Durable Object-backed [`IFileSystem`](https://www.npmjs.com/package/j
 ## Install
 
 ```bash
-npm install durable-bash
+npm install @stablemodels/durable-bash
 ```
 
 Peer dependencies: `just-bash`, `@cloudflare/workers-types`
@@ -14,7 +14,7 @@ Peer dependencies: `just-bash`, `@cloudflare/workers-types`
 
 ```typescript
 import { Bash } from "just-bash";
-import { DurableFs } from "durable-bash";
+import { DurableFs } from "@stablemodels/durable-bash";
 
 // In a Cloudflare Worker:
 const id = env.FS.idFromName("my-agent");
@@ -43,7 +43,7 @@ new_sqlite_classes = ["FsObject"]
 Re-export the DO class from your worker:
 
 ```typescript
-export { FsObject } from "durable-bash/object";
+export { FsObject } from "@stablemodels/durable-bash/object";
 ```
 
 ## API
@@ -64,10 +64,10 @@ export { FsObject } from "durable-bash/object";
 
 | Export | Path | Description |
 |--------|------|-------------|
-| `DurableFs` | `durable-bash` | `IFileSystem` adapter |
-| `FsObject` | `durable-bash/object` | Durable Object class — re-export in your worker |
-| `FsError`, `ENOENT`, `EEXIST`, `EISDIR`, `ENOTDIR`, `ENOTEMPTY` | `durable-bash` | POSIX-style errors |
-| `FsStatData`, `DirentData` | `durable-bash` | RPC wire-format types |
+| `DurableFs` | `@stablemodels/durable-bash` | `IFileSystem` adapter |
+| `FsObject` | `@stablemodels/durable-bash/object` | Durable Object class — re-export in your worker |
+| `FsError`, `ENOENT`, `EEXIST`, `EISDIR`, `ENOTDIR`, `ENOTEMPTY` | `@stablemodels/durable-bash` | POSIX-style errors |
+| `FsStatData`, `DirentData` | `@stablemodels/durable-bash` | RPC wire-format types |
 
 ## Development
 
