@@ -1,7 +1,8 @@
-# Example wrangler.toml — consumers should add these bindings to their own config.
-# This file is provided as a reference.
+# Used by @cloudflare/vitest-pool-workers for runtime testing.
+# Consumers should add these bindings to their own wrangler.toml.
 
-name = "durable-bash-example"
+name = "durable-bash"
+main = "src/index.ts"
 compatibility_date = "2025-03-01"
 
 [[durable_objects.bindings]]

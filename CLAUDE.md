@@ -26,9 +26,10 @@ Two core classes, one adapter pattern:
 ## Commands
 
 ```bash
-bun test                 # all tests (123 tests across 4 files)
+bun run test             # all tests: bun + CloudFlare (161 tests)
 bun run test:unit        # unit tests only (fs-object + durable-fs)
 bun run test:integration # integration + smoke tests
+bun run test:cf          # CloudFlare runtime tests (vitest + workerd)
 bun run build            # tsc → dist/
 bun run check            # biome lint
 bun run format           # biome format (tabs, write)
@@ -36,13 +37,29 @@ bun run format           # biome format (tabs, write)
 
 ## Testing
 
-Tests use `bun:test` with `bun:sqlite` to simulate DO SQLite storage. The `cloudflare:workers` module is mocked via `tests/setup.ts` (preloaded in `bunfig.toml`).
+Two-tier test suite: fast bun tests for development, CloudFlare runtime tests for production confidence.
+
+### Bun tests (`tests/*.test.ts`)
+
+Use `bun:test` with `bun:sqlite` to simulate DO SQLite storage. The `cloudflare:workers` module is mocked via `tests/setup.ts` (preloaded in `bunfig.toml`). Fast (~100ms).
 
 - `tests/helpers.ts` — shared `createMockState()`, `createTestFsObject()`, `createDirectStub()` (Proxy wrapping sync methods as Promises for RPC simulation)
 - `tests/fs-object.test.ts` — Unit tests for FsObject
 - `tests/durable-fs.test.ts` — Unit tests for DurableFs with mock stub
 - `tests/integration.test.ts` — DurableFs + FsObject wired together
 - `tests/just-bash.test.ts` — Bash commands through DurableFs
+
+### CloudFlare runtime tests (`tests/cf/*.ts`)
+
+Use `@cloudflare/vitest-pool-workers` to run tests inside the actual **workerd** runtime (same binary as production). Tests real DO RPC, real SQLite, real `cloudflare:workers` module. Configured via `vitest.config.ts` + `wrangler.toml`.
+
+Files intentionally omit the `.test.ts` suffix so bun's test runner doesn't auto-discover them (they require workerd, not bun).
+
+- `tests/cf/fs-object.ts` — FsObject via real DO RPC stubs: BLOB round-trips, stat shapes, error propagation, UTF-8 handling
+- `tests/cf/durable-fs.ts` — DurableFs adapter: cache sync, path resolution, full stack operations
+- `tests/cf/just-bash.ts` — Bash commands through the complete real stack
+
+Each CF test uses a unique DO instance name for isolation (isolated storage is disabled due to a [known SQLite incompatibility](https://developers.cloudflare.com/workers/testing/vitest-integration/known-issues/#isolated-storage)).
 
 ## Extending the Package
 
@@ -51,7 +68,7 @@ Tests use `bun:test` with `bun:sqlite` to simulate DO SQLite storage. The `cloud
 2. Add the async wrapper in `DurableFs` in `src/durable-fs.ts` — resolve paths with `this.resolve()`, call `this.stub.<method>()`, update cache with `addToCache`/`removeFromCache` if paths change
 3. If new wire-format types are needed, add them to `src/types.ts`
 4. Export any new public types from `src/index.ts`
-5. Add tests to `tests/fs-object.test.ts` (unit) and `tests/integration.test.ts` (e2e)
+5. Add tests to `tests/fs-object.test.ts` (unit), `tests/integration.test.ts` (e2e), and `tests/cf/fs-object.ts` (workerd runtime)
 
 **Adding a new error code:**
 1. Add a factory function in `src/errors.ts` following the `ENOENT` pattern
