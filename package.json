@@ -20,6 +20,10 @@
 		"@biomejs/biome": "1.9.4",
 		"wrangler": "^4.0.0"
 	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/stablemodels/durable-bash"
+	},
 	"scripts": {
 		"build": "tsc",
 		"check": "biome check .",
