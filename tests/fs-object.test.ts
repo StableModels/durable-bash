@@ -330,6 +330,20 @@ describe("symlink", () => {
 		obj.writeFile("/existing.txt", "existing");
 		expect(() => obj.symlink("/target.txt", "/existing.txt")).toThrow("EEXIST");
 	});
+
+	test("writeFile through symlink writes to target", () => {
+		obj.writeFile("/target.txt", "original");
+		obj.symlink("/target.txt", "/link.txt");
+		obj.writeFile("/link.txt", "updated");
+		expect(obj.readFile("/target.txt").content).toBe("updated");
+		expect(obj.readFile("/link.txt").content).toBe("updated");
+	});
+
+	test("readFile on broken symlink throws ENOENT", () => {
+		obj.symlink("/nonexistent.txt", "/broken-link.txt");
+		expect(obj.exists("/broken-link.txt")).toBe(true);
+		expect(() => obj.readFile("/broken-link.txt")).toThrow("ENOENT");
+	});
 });
 
 // ─── hard link ────────────────────────────────────────────────────────

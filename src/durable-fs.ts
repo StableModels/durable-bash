@@ -165,13 +165,30 @@ export class DurableFs {
 		return this.resolvePath(this.cwd, path);
 	}
 
+	/**
+	 * Add a path and all its ancestor directories to the cache.
+	 * The DO auto-creates parent dirs on write, so the cache must reflect them.
+	 */
 	private addToCache(path: string): void {
 		this._cachedPaths.add(path);
+		let dir = path;
+		while (true) {
+			const idx = dir.lastIndexOf("/");
+			if (idx <= 0) {
+				this._cachedPaths.add("/");
+				break;
+			}
+			dir = dir.substring(0, idx);
+			if (this._cachedPaths.has(dir)) break;
+			this._cachedPaths.add(dir);
+		}
 	}
 
 	private removeFromCache(path: string): void {
 		this._cachedPaths.delete(path);
 		const prefix = `${path}/`;
+		// Safe to delete during Set iteration per ES spec — the iterator
+		// will not visit deleted entries but will complete correctly.
 		for (const p of this._cachedPaths) {
 			if (p.startsWith(prefix)) {
 				this._cachedPaths.delete(p);

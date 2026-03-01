@@ -69,7 +69,7 @@ export class FsObject extends DurableObject<any> {
 				path TEXT PRIMARY KEY,
 				content BLOB,
 				is_dir INTEGER NOT NULL DEFAULT 0,
-				mode INTEGER NOT NULL DEFAULT ${FILE_MODE},
+				mode INTEGER NOT NULL DEFAULT 420,
 				size INTEGER NOT NULL DEFAULT 0,
 				mtime_ms INTEGER NOT NULL,
 				symlink_target TEXT
@@ -231,8 +231,6 @@ export class FsObject extends DurableObject<any> {
 		opts?: { mode?: number },
 	): void {
 		const normalized = normalizePath(path);
-		this.ensureParentDirs(normalized);
-
 		const bytes = this.toBytes(content);
 		const mode = opts?.mode ?? FILE_MODE;
 
@@ -243,6 +241,7 @@ export class FsObject extends DurableObject<any> {
 			? this.resolveSymlinks(normalized)
 			: normalized;
 
+		this.ensureParentDirs(target);
 		this.upsertFile(target, {
 			content: bytes,
 			is_dir: 0,
@@ -493,10 +492,12 @@ export class FsObject extends DurableObject<any> {
 				.exec("SELECT path FROM files WHERE path LIKE ?", `${prefix}%`)
 				.toArray();
 
+			// All descendants share the same new parent prefix — the directory
+			// entry itself (moved below) covers the intermediate dirs, so no
+			// per-child ensureParentDirs is needed.
 			for (const r of rows) {
 				const rPath = r.path as string;
 				const newPath = destNorm + rPath.substring(srcNorm.length);
-				this.ensureParentDirs(newPath);
 				this.sql.exec(
 					"UPDATE files SET path = ?, mtime_ms = ? WHERE path = ?",
 					newPath,
@@ -540,6 +541,12 @@ export class FsObject extends DurableObject<any> {
 		);
 	}
 
+	/**
+	 * Create a hard link. Note: this copies content at call time rather than
+	 * sharing underlying storage — subsequent writes to one path will not
+	 * update the other. This matches the IFileSystem contract but differs
+	 * from POSIX hard link semantics.
+	 */
 	link(existingPath: string, newPath: string): void {
 		const existingNorm = this.resolveSymlinks(normalizePath(existingPath));
 		const newNorm = normalizePath(newPath);
