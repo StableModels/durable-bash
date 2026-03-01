@@ -1,0 +1,13 @@
+# Example wrangler.toml — consumers should add these bindings to their own config.
+# This file is provided as a reference.
+
+name = "durable-bash-example"
+compatibility_date = "2025-03-01"
+
+[[durable_objects.bindings]]
+name = "FS"
+class_name = "FsObject"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["FsObject"]

@@ -1,0 +1,31 @@
+{
+	"name": "durable-bash",
+	"version": "0.1.0",
+	"type": "module",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"exports": {
+		".": "./dist/index.js",
+		"./object": "./dist/fs-object.js"
+	},
+	"peerDependencies": {
+		"just-bash": "^1.0.0",
+		"@cloudflare/workers-types": "^4.0.0"
+	},
+	"devDependencies": {
+		"just-bash": "^1.0.0",
+		"bash-tool": "^1.3.1",
+		"@cloudflare/workers-types": "^4.20250214.0",
+		"typescript": "^5.7.0",
+		"@biomejs/biome": "1.9.4",
+		"wrangler": "^4.0.0"
+	},
+	"scripts": {
+		"build": "tsc",
+		"check": "biome check .",
+		"format": "biome check --write .",
+		"test": "bun test",
+		"test:unit": "bun test tests/durable-fs.test.ts tests/fs-object.test.ts",
+		"test:integration": "bun test tests/integration.test.ts tests/just-bash.test.ts"
+	}
+}
