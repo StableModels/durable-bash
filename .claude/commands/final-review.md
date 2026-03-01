@@ -31,4 +31,6 @@ Review all changes in the current branch compared to main, check for public API 
 
 8. **Commit**: Stage the package.json change and commit with message: `chore: bump version to <new-version>`.
 
-9. **Report**: Show the old version, new version, bump type, and the reasoning for the bump decision.
+9. **Update PR**: Check if there is an open pull request for the current branch (`gh pr view --json number,title,body`). If one exists, update its title and description to reflect the full scope of changes in the branch using `gh pr edit`. The PR may have been created early and its description may be outdated. Write a concise title (under 70 chars) and a body with a short summary of all changes, not just the latest commit.
+
+10. **Report**: Show the old version, new version, bump type, and the reasoning for the bump decision.
