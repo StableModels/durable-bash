@@ -1,6 +1,6 @@
 {
 	"name": "@stablemodels/durable-bash",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"type": "module",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -13,11 +13,14 @@
 		"@cloudflare/workers-types": "^4.0.0"
 	},
 	"devDependencies": {
-		"just-bash": "^1.0.0",
-		"bash-tool": "^1.3.1",
-		"@cloudflare/workers-types": "^4.20250214.0",
-		"typescript": "^5.7.0",
 		"@biomejs/biome": "1.9.4",
+		"@cloudflare/vitest-pool-workers": "^0.12.18",
+		"@cloudflare/workers-types": "^4.20250214.0",
+		"@vitest/runner": "3.2.0",
+		"@vitest/snapshot": "3.2.0",
+		"just-bash": "^1.0.0",
+		"typescript": "^5.7.0",
+		"vitest": "3.2.0",
 		"wrangler": "^4.0.0"
 	},
 	"repository": {
@@ -28,8 +31,9 @@
 		"build": "tsc",
 		"check": "biome check .",
 		"format": "biome check --write .",
-		"test": "bun test",
+		"test": "bun test tests/*.test.ts && vitest run --config vitest.config.ts",
 		"test:unit": "bun test tests/durable-fs.test.ts tests/fs-object.test.ts",
-		"test:integration": "bun test tests/integration.test.ts tests/just-bash.test.ts"
+		"test:integration": "bun test tests/integration.test.ts tests/just-bash.test.ts",
+		"test:cf": "vitest run --config vitest.config.ts"
 	}
 }
