@@ -17,12 +17,7 @@ import { Bash } from "just-bash";
 import { DurableFs } from "@stablemodels/durable-bash";
 
 // In a Cloudflare Worker:
-const id = env.FS.idFromName("my-agent");
-const stub = env.FS.get(id);
-
-const fs = new DurableFs(stub);
-await fs.sync();
-
+const fs = await DurableFs.create(env.FS, "my-agent");
 const bash = new Bash({ fs, cwd: "/home" });
 const result = await bash.exec('echo "hello" > greeting.txt && cat greeting.txt');
 console.log(result.stdout); // "hello\n"
@@ -57,7 +52,7 @@ export { FsObject } from "@stablemodels/durable-bash/object";
 - `rm(path, opts?)` / `cp(src, dest, opts?)` / `mv(src, dest)` — File operations
 - `chmod(path, mode)` / `utimes(path, atime, mtime)` — Metadata changes
 - `symlink(target, linkPath)` / `link(existing, new)` / `readlink(path)` / `realpath(path)` — Links
-- `sync()` — Fetch all paths from DO (required once before `getAllPaths()`)
+- `static create(namespace, name, cwd?)` — Factory: creates stub, syncs cache, returns ready instance
 - `getAllPaths()` — Synchronous cached path list for glob matching
 
 ## Exports
@@ -95,7 +90,7 @@ Tests mock `cloudflare:workers` via a preload script (`tests/setup.ts`, configur
 ## CI/CD
 
 - **PR checks**: Lint, build, and tests run automatically on pull requests via GitHub Actions.
-- **NPM publishing**: Triggered automatically when a GitHub Release is created. Requires an `NPM_TOKEN` secret in the repository settings.
+- **NPM publishing**: Triggered automatically on merge to `main`. Requires an `NPM_TOKEN` secret in the repository/org settings.
 
 ## License
 

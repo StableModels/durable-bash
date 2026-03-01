@@ -7,7 +7,7 @@ Cloudflare Durable Object-backed `IFileSystem` adapter for `just-bash`.
 Two core classes, one adapter pattern:
 
 - **`FsObject`** (`src/fs-object.ts`) — Durable Object with SQLite storage. Single `files` table stores paths, content (BLOB), metadata, and optional symlink targets. All methods are **synchronous** and exposed via RPC. This is where all filesystem logic lives.
-- **`DurableFs`** (`src/durable-fs.ts`) — Thin adapter implementing `IFileSystem` from `just-bash`. Every method delegates to `FsObject` via a DO stub. Maintains a `Set<string>` cache for the synchronous `getAllPaths()` method. Call `sync()` after construction to populate the cache.
+- **`DurableFs`** (`src/durable-fs.ts`) — Thin adapter implementing `IFileSystem` from `just-bash`. Every method delegates to `FsObject` via a DO stub. Maintains a `Set<string>` cache for the synchronous `getAllPaths()` method. Use the static `DurableFs.create(namespace, name)` factory for construction — it handles stub creation and initial cache sync.
 - **`src/errors.ts`** — `FsError` class and factory functions: `ENOENT`, `EEXIST`, `EISDIR`, `ENOTDIR`, `ENOTEMPTY`.
 - **`src/types.ts`** — Wire-format types for RPC: `FsStatData`, `DirentData`.
 - **`src/index.ts`** — Public API re-exports. Two entry points: `durable-bash` (adapter + errors + types) and `durable-bash/object` (DO class).
@@ -15,7 +15,7 @@ Two core classes, one adapter pattern:
 ## Important Points
 
 - **`IFileSystem` uses boolean properties**, not methods: `stat.isFile`, not `stat.isFile()`. `FsStat` and `DirentEntry` in `durable-fs.ts` define these shapes.
-- **`getAllPaths()` is synchronous** but the DO is async. Solved with eager `sync()` + `Set` cache. `addToCache` walks ancestor dirs so auto-created parents are included.
+- **`getAllPaths()` is synchronous** but the DO is async. Solved with eager cache sync (handled by `DurableFs.create()`) + `Set` cache. `addToCache` walks ancestor dirs so auto-created parents are included.
 - **Auto-parent creation**: `writeFile("/a/b/c.txt", ...)` auto-creates `/a` and `/a/b` via `ensureParentDirs` using `INSERT OR IGNORE`.
 - **Symlinks**: stored as rows with `symlink_target` set. `resolveSymlinks()` follows chains up to 20 levels. `readFile`/`stat` follow symlinks; `lstat` does not.
 - **`link()` copies content** at call time (not POSIX shared-inode semantics). This is by design per `IFileSystem` contract.

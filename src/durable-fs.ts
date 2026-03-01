@@ -8,6 +8,11 @@ type FsObjectStub = DurableObjectStub<FsObject>;
 /**
  * IFileSystem implementation backed by a Durable Object.
  * Every filesystem operation is delegated to the FsObject DO over RPC.
+ *
+ * Use the static `create()` factory for easy setup:
+ * ```ts
+ * const fs = await DurableFs.create(env.FS, "my-agent");
+ * ```
  */
 export class DurableFs {
 	private _cachedPaths = new Set<string>();
@@ -18,8 +23,25 @@ export class DurableFs {
 	) {}
 
 	/**
-	 * Fetch all paths from the DO and cache them locally.
-	 * Must be called once after construction for `getAllPaths()` to work.
+	 * Create a ready-to-use DurableFs from a DO namespace and instance name.
+	 * Handles stub creation and initial sync in one call.
+	 */
+	static async create(
+		namespace: DurableObjectNamespace<FsObject>,
+		name: string,
+		cwd = "/",
+	): Promise<DurableFs> {
+		const id = namespace.idFromName(name);
+		const stub = namespace.get(id);
+		const fs = new DurableFs(stub, cwd);
+		await fs.sync();
+		return fs;
+	}
+
+	/**
+	 * Refresh the local path cache from the DO.
+	 * Called automatically by `create()`. Only needed if you modify
+	 * the DO outside of this DurableFs instance.
 	 */
 	async sync(): Promise<void> {
 		const paths = await this.stub.getAllPaths();

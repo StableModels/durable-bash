@@ -308,6 +308,38 @@ describe("DurableFs", () => {
 			expect(fs.getAllPaths()).not.toContain("/dir/b.txt");
 		});
 	});
+
+	describe("create factory", () => {
+		test("returns a synced DurableFs", async () => {
+			const mock = createMockStub();
+			const namespace = {
+				idFromName: (name: string) => ({ name }),
+				get: () => mock.stub,
+			} as never;
+
+			const created = await DurableFs.create(namespace, "test-agent");
+			// Cache should already be populated (sync called internally)
+			expect(created.getAllPaths()).toEqual([
+				"/",
+				"/a.txt",
+				"/dir",
+				"/dir/b.txt",
+			]);
+		});
+
+		test("passes cwd to instance", async () => {
+			const mock = createMockStub();
+			const namespace = {
+				idFromName: (name: string) => ({ name }),
+				get: () => mock.stub,
+			} as never;
+
+			const created = await DurableFs.create(namespace, "agent", "/workspace");
+			await created.readFile("foo.txt");
+			// Should resolve relative to /workspace
+			expect(mock.calls.at(-1)!.args[0]).toBe("/workspace/foo.txt");
+		});
+	});
 });
 
 // ─── normalizePath standalone tests ───────────────────────────────────
