@@ -11,7 +11,7 @@ Two core classes, one adapter pattern:
 - **`src/utils.ts`** — Shared utilities. `normalizePath` lives here (resolves `.`/`..`, ensures leading `/`, strips trailing `/`). Imported by both `FsObject` and `DurableFs`.
 - **`src/errors.ts`** — `FsError` class and factory functions: `ENOENT`, `EEXIST`, `EISDIR`, `ENOTDIR`, `ENOTEMPTY`.
 - **`src/types.ts`** — Wire-format types for RPC: `FsStatData`, `DirentData`.
-- **`src/index.ts`** — Public API re-exports. Two entry points: `durable-bash` (adapter + errors + types + utils) and `durable-bash/object` (DO class).
+- **`src/index.ts`** — Public API re-exports. Three entry points: `durable-bash` (adapter + errors + types + utils), `durable-bash/fs` (adapter only — `DurableFs`, `FsStat`, `DirentEntry`), and `durable-bash/object` (DO class).
 
 ## Important Points
 
