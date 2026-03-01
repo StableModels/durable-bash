@@ -1,4 +1,4 @@
-Review all changes in the current branch compared to main, check for public API impact, update the README if needed, and automatically bump the package version.
+Review all changes in the current branch compared to main, check for public API impact, update README and CLAUDE.md if needed, and automatically bump the package version.
 
 ## Steps
 
@@ -18,19 +18,29 @@ Review all changes in the current branch compared to main, check for public API 
    - Check for breaking changes to the `durable-bash/object` sub-export.
    - If any public API changes are found, update `readme.md` to reflect them. Keep changes concise and developer-oriented — document what consumers need to know (imports, usage, API surface, entry points), not internal implementation details.
 
-5. **Test coverage review**: For any new or changed functionality, review existing tests and add missing coverage:
+5. **CLAUDE.md review**: Check if any changes affect internal architecture, project structure, conventions, or guidance that future developer agents need to know:
+   - Read the current `CLAUDE.md` and compare it against the actual state of the codebase after this branch's changes.
+   - **File structure**: Are there new source files, moved modules, or renamed files that the Architecture section should mention?
+   - **Conventions**: Are there new patterns, naming conventions, or implementation rules introduced by this branch?
+   - **Commands**: Has the test count changed, or have new scripts been added to `package.json`?
+   - **Extending the package**: Do the step-by-step guides still match reality (e.g., if a utility moved to a different file)?
+   - **Important points**: Are there new gotchas, design decisions, or behavioral notes worth documenting?
+   - `CLAUDE.md` is for internal developer/agent guidance — architecture, conventions, file layout, how to extend the code. `README.md` is user-facing — install, usage, API surface, exports. Do not put internal implementation details in the README, and do not put user-facing setup instructions in CLAUDE.md.
+   - Only update `CLAUDE.md` if something is actually wrong or missing. Don't rewrite for style.
+
+6. **Test coverage review**: For any new or changed functionality, review existing tests and add missing coverage:
    - Are the core behaviors tested (not just happy paths)? Check edge cases, error conditions, and boundary values that exercise the actual logic.
    - Do tests assert on the right things? Tests should verify correct outcomes and state, not just that "something was called" or "no error was thrown." A test that passes when the code is broken is worse than no test.
    - Are there integration-level tests that exercise the new code through `DurableFs`, not just `FsObject` in isolation?
    - Don't add tests for trivial wiring or scenarios already covered. Focus on cases where a bug would actually go undetected.
    - Run `bun test` after any test changes to confirm they pass.
 
-6. **Bump the version**: Run `npm version <patch|minor> --no-git-tag-version` to update package.json. Do NOT create a git tag — the version in package.json is what npm publish uses.
+7. **Bump the version**: Run `npm version <patch|minor> --no-git-tag-version` to update package.json. Do NOT create a git tag — the version in package.json is what npm publish uses.
 
-7. **Verify**: Run `bun test && bun run check && bun run build` to make sure everything still passes.
+8. **Verify**: Run `bun test && bun run check && bun run build` to make sure everything still passes.
 
-8. **Commit**: Stage the package.json change and commit with message: `chore: bump version to <new-version>`.
+9. **Commit and push all outstanding changes**: Stage all modified and new files (README.md, CLAUDE.md, package.json, test files, etc.) and create appropriate commits. Then `git push` to ensure the remote branch is fully up to date. This guarantees the PR reflects everything — doc updates, version bump, test additions, and any other changes made during this review.
 
-9. **Update PR**: Check if there is an open pull request for the current branch (`gh pr view --json number,title,body`). If one exists, update its title and description to reflect the full scope of changes in the branch using `gh pr edit`. The PR may have been created early and its description may be outdated. Write a concise title (under 70 chars) and a body with a short summary of all changes, not just the latest commit.
+10. **Update PR**: Check if there is an open pull request for the current branch (`gh pr view --json number,title,body`). If one exists, update its title and description to reflect the full scope of changes in the branch using `gh pr edit`. The PR may have been created early and its description may be outdated. Write a concise title (under 70 chars) and a body with a short summary of all changes, not just the latest commit.
 
-10. **Report**: Show the old version, new version, bump type, and the reasoning for the bump decision.
+11. **Report**: Show the old version, new version, bump type, and the reasoning for the bump decision.
