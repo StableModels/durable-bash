@@ -1,6 +1,6 @@
 import type { FsObject } from "./fs-object.js";
-import { normalizePath } from "./fs-object.js";
 import type { FsStatData } from "./types.js";
+import { normalizePath } from "./utils.js";
 
 /** Minimal stub interface for the FsObject Durable Object */
 type FsObjectStub = DurableObjectStub<FsObject>;
