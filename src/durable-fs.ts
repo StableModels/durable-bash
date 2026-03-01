@@ -10,7 +10,7 @@ type FsObjectStub = DurableObjectStub<FsObject>;
  * Every filesystem operation is delegated to the FsObject DO over RPC.
  */
 export class DurableFs {
-	private _cachedPaths: string[] = [];
+	private _cachedPaths = new Set<string>();
 
 	constructor(
 		private stub: FsObjectStub,
@@ -22,7 +22,8 @@ export class DurableFs {
 	 * Must be called once after construction for `getAllPaths()` to work.
 	 */
 	async sync(): Promise<void> {
-		this._cachedPaths = await this.stub.getAllPaths();
+		const paths = await this.stub.getAllPaths();
+		this._cachedPaths = new Set(paths);
 	}
 
 	async readFile(
@@ -123,7 +124,7 @@ export class DurableFs {
 	}
 
 	getAllPaths(): string[] {
-		return this._cachedPaths;
+		return [...this._cachedPaths].sort();
 	}
 
 	async chmod(path: string, mode: number): Promise<void> {
@@ -165,16 +166,17 @@ export class DurableFs {
 	}
 
 	private addToCache(path: string): void {
-		if (!this._cachedPaths.includes(path)) {
-			this._cachedPaths.push(path);
-			this._cachedPaths.sort();
-		}
+		this._cachedPaths.add(path);
 	}
 
 	private removeFromCache(path: string): void {
-		this._cachedPaths = this._cachedPaths.filter(
-			(p) => p !== path && !p.startsWith(`${path}/`),
-		);
+		this._cachedPaths.delete(path);
+		const prefix = `${path}/`;
+		for (const p of this._cachedPaths) {
+			if (p.startsWith(prefix)) {
+				this._cachedPaths.delete(p);
+			}
+		}
 	}
 }
 

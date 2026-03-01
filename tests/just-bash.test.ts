@@ -1,26 +1,7 @@
 import { beforeEach, describe, expect, test } from "bun:test";
 import { Bash } from "just-bash";
 import { DurableFs } from "../src/durable-fs.js";
-import type { FsObject } from "../src/fs-object.js";
-import { createTestFsObject } from "./helpers.js";
-
-/**
- * Create a stub that wraps FsObject methods in Promises for RPC simulation.
- */
-function createDirectStub(obj: FsObject): DurableObjectStub<FsObject> {
-	return new Proxy(obj, {
-		get(target, prop: string) {
-			const method = (target as Record<string, unknown>)[prop];
-			if (typeof method === "function") {
-				return (...args: unknown[]) => {
-					const result = method.apply(target, args);
-					return result instanceof Promise ? result : Promise.resolve(result);
-				};
-			}
-			return method;
-		},
-	}) as unknown as DurableObjectStub<FsObject>;
-}
+import { createDirectStub, createTestFsObject } from "./helpers.js";
 
 let bash: Bash;
 

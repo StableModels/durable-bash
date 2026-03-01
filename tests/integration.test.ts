@@ -1,27 +1,7 @@
 import { beforeEach, describe, expect, test } from "bun:test";
 import { DurableFs } from "../src/durable-fs.js";
 import type { FsObject } from "../src/fs-object.js";
-import { createTestFsObject } from "./helpers.js";
-
-/**
- * Create a "stub" that delegates directly to the FsObject instance,
- * wrapping return values in Promises to simulate RPC.
- */
-function createDirectStub(obj: FsObject): DurableObjectStub<FsObject> {
-	return new Proxy(obj, {
-		get(target, prop: string) {
-			const method = (target as Record<string, unknown>)[prop];
-			if (typeof method === "function") {
-				return (...args: unknown[]) => {
-					const result = method.apply(target, args);
-					// Wrap synchronous returns in Promise for RPC simulation
-					return result instanceof Promise ? result : Promise.resolve(result);
-				};
-			}
-			return method;
-		},
-	}) as unknown as DurableObjectStub<FsObject>;
-}
+import { createDirectStub, createTestFsObject } from "./helpers.js";
 
 let fs: DurableFs;
 let obj: FsObject;
