@@ -60,6 +60,8 @@ export { FsObject } from "@stablemodels/durable-bash/object";
 | Export | Path | Description |
 |--------|------|-------------|
 | `DurableFs` | `@stablemodels/durable-bash` | `IFileSystem` adapter |
+| `FsStat`, `DirentEntry` | `@stablemodels/durable-bash` | Stat/dirent types (boolean properties, not methods) |
+| `normalizePath` | `@stablemodels/durable-bash` | Path normalizer (resolves `.`/`..`, ensures leading `/`) |
 | `FsObject` | `@stablemodels/durable-bash/object` | Durable Object class — re-export in your worker |
 | `FsError`, `ENOENT`, `EEXIST`, `EISDIR`, `ENOTDIR`, `ENOTEMPTY` | `@stablemodels/durable-bash` | POSIX-style errors |
 | `FsStatData`, `DirentData` | `@stablemodels/durable-bash` | RPC wire-format types |

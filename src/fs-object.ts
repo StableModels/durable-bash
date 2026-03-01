@@ -8,28 +8,11 @@ import {
 	FsError,
 } from "./errors.js";
 import type { DirentData, FsStatData } from "./types.js";
+import { normalizePath } from "./utils.js";
 
 const DIR_MODE = 0o755;
 const FILE_MODE = 0o644;
 const SYMLINK_MODE = 0o777;
-
-/**
- * Normalize a path: resolve `.` and `..`, remove trailing slashes, ensure leading `/`.
- */
-export function normalizePath(p: string): string {
-	if (!p || p === "/") return "/";
-	const parts = p.split("/");
-	const resolved: string[] = [];
-	for (const part of parts) {
-		if (part === "" || part === ".") continue;
-		if (part === "..") {
-			resolved.pop();
-		} else {
-			resolved.push(part);
-		}
-	}
-	return `/${resolved.join("/")}`;
-}
 
 function parentDir(p: string): string {
 	const idx = p.lastIndexOf("/");

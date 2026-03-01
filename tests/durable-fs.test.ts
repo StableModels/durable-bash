@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, test } from "bun:test";
 import { DurableFs } from "../src/durable-fs.js";
-import { normalizePath } from "../src/fs-object.js";
+import { normalizePath } from "../src/utils.js";
 
 // ─── Mock stub ────────────────────────────────────────────────────────
 
