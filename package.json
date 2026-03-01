@@ -22,7 +22,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/StableModels/durable-bash"
+		"url": "https://github.com/stablemodels/durable-bash"
 	},
 	"scripts": {
 		"build": "tsc",
