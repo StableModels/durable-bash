@@ -8,9 +8,10 @@ Two core classes, one adapter pattern:
 
 - **`FsObject`** (`src/fs-object.ts`) — Durable Object with SQLite storage. Single `files` table stores paths, content (BLOB), metadata, and optional symlink targets. All methods are **synchronous** and exposed via RPC. This is where all filesystem logic lives.
 - **`DurableFs`** (`src/durable-fs.ts`) — Thin adapter implementing `IFileSystem` from `just-bash`. Every method delegates to `FsObject` via a DO stub. Maintains a `Set<string>` cache for the synchronous `getAllPaths()` method. Use the static `DurableFs.create(namespace, name)` factory for construction — it handles stub creation and initial cache sync.
+- **`src/utils.ts`** — Shared utilities. `normalizePath` lives here (resolves `.`/`..`, ensures leading `/`, strips trailing `/`). Imported by both `FsObject` and `DurableFs`.
 - **`src/errors.ts`** — `FsError` class and factory functions: `ENOENT`, `EEXIST`, `EISDIR`, `ENOTDIR`, `ENOTEMPTY`.
 - **`src/types.ts`** — Wire-format types for RPC: `FsStatData`, `DirentData`.
-- **`src/index.ts`** — Public API re-exports. Two entry points: `durable-bash` (adapter + errors + types) and `durable-bash/object` (DO class).
+- **`src/index.ts`** — Public API re-exports. Two entry points: `durable-bash` (adapter + errors + types + utils) and `durable-bash/object` (DO class).
 
 ## Important Points
 
@@ -25,7 +26,7 @@ Two core classes, one adapter pattern:
 ## Commands
 
 ```bash
-bun test                 # all tests (121 tests across 4 files)
+bun test                 # all tests (123 tests across 4 files)
 bun run test:unit        # unit tests only (fs-object + durable-fs)
 bun run test:integration # integration + smoke tests
 bun run build            # tsc → dist/
